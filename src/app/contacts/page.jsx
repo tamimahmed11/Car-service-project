@@ -42,7 +42,7 @@ export default function ContactsPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
           <p className="text-xl text-gray-600">
-            Have questions? We'd love to hear from you. Send us a message!
+            Have questions? We&apos;d love to hear from you. Send us a message!
           </p>
         </div>
 

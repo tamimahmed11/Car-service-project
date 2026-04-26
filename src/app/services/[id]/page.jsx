@@ -1,4 +1,4 @@
-import { getServicesDetails } from '@/services/getServices';
+import { getServiceFromFile } from '@/lib/serverUtils';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -9,9 +9,24 @@ export const metadata = {
 }
 
 
-const Page = async ({params}) => {
-    const details =await getServicesDetails(params.id)
-    const {_id, title, description, img, price, facility} = details.service;
+const Page = ({ params }) => {
+    const service = getServiceFromFile(params.id);
+    
+    if (!service) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4">Service Not Found</h1>
+                    <p className="text-gray-600 mb-8">The service you&apos;re looking for doesn&apos;t exist.</p>
+                    <Link href="/services">
+                        <button className="btn btn-primary">Back to Services</button>
+                    </Link>
+                </div>
+            </div>
+        )
+    }
+    
+    const {_id, title, description, img, price, facility} = service;
     return (
         <div className="w-11/12 mx-auto my-10">
         <div>

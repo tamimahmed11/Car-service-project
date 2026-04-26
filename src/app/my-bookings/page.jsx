@@ -9,23 +9,35 @@ const Page = () => {
   const session = useSession();
   const [bookings, setBooking] = useState([]);
   const loadData = async () => {
-    const resp = await fetch(
-      `https://car-doctor-pro-nine.vercel.app/my-bookings/api/${session?.data?.user?.email}`
-    );
-    const data = await resp.json();
-    setBooking(data?.myBookings);
+    try {
+      const resp = await fetch(
+        `/my-bookings/api/${session?.data?.user?.email}`
+      );
+      const data = await resp.json();
+      setBooking(data?.myBookings || []);
+    } catch (error) {
+      console.error('Load bookings error:', error);
+      toast.error('Failed to load bookings');
+    }
   };
 
   const handleDelete = async (id) => {
-    const deleted = await fetch(
-      `https://car-doctor-pro-nine.vercel.app/my-bookings/api/booking/${id}`, {
-        method : "DELETE",
+    try {
+      const deleted = await fetch(
+        `/my-bookings/api/booking/${id}`, {
+          method : "DELETE",
+        }
+      );
+      const resp = await deleted.json();
+      if(resp?.response?.deletedCount > 0) {
+        toast.success(resp?.message || 'Booking deleted successfully');
+        loadData();
+      } else {
+        toast.error(resp?.message || 'Failed to delete booking');
       }
-    );
-    const resp = await deleted.json();
-    if(resp?.response?.deletedCount >  0) {
-      toast.success(resp?.message)
-      loadData();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete booking');
     }
   };
 

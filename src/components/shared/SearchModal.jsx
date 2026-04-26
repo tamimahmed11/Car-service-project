@@ -83,7 +83,7 @@ const SearchModal = ({ isOpen, onClose }) => {
 
           {!isLoading && searchQuery && searchResults.length === 0 && (
             <div className="p-8 text-center text-gray-500">
-              <p>No services found matching "{searchQuery}"</p>
+              <p>No services found matching &quot;{searchQuery}&quot;</p>
             </div>
           )}
 

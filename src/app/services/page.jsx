@@ -1,14 +1,14 @@
 import React from "react";
 import ServiceCard from "@/components/cards/ServiceCard";
-import { getServices } from "@/services/getServices";
+import { getAllServicesFromFile } from "@/lib/serverUtils";
 
 export const metadata = {
   title: "Services",
   description: "Browse our car services",
 };
 
-const ServicesPage = async () => {
-  const { services } = await getServices();
+const ServicesPage = () => {
+  const services = getAllServicesFromFile();
 
   if (services?.length <= 0) {
     return (

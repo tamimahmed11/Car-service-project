@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Client-side safe function for API calls only
 export const getServices = async () => {
   try {
     const res = await axios.get(
@@ -7,8 +8,8 @@ export const getServices = async () => {
     );
     return res.data;
   } catch (error) {
-    console.log(error);
-    return [];
+    console.error("Error fetching services via API:", error.message);
+    return { services: [] };
   }
 };
 
@@ -19,6 +20,7 @@ export const getServicesDetails = async (id) => {
     );
     return res.data;
   } catch (error) {
-    return {};
+    console.error(`Error fetching service details for id: ${id}`, error.message);
+    return { service: null, message: "Failed to fetch service details" };
   }
 };

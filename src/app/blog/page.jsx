@@ -36,7 +36,7 @@ export default function BlogPage() {
                 How to Check Your Tire Pressure
               </h3>
               <p className="text-gray-600 mb-4">
-                Proper tire pressure is crucial for safety and fuel efficiency. Here's how to check it correctly.
+                Proper tire pressure is crucial for safety and fuel efficiency. Here&apos;s how to check it correctly.
               </p>
               <a href="#" className="text-primary font-semibold hover:text-primary/80">
                 Read More →
@@ -49,10 +49,10 @@ export default function BlogPage() {
             <div className="bg-gradient-to-r from-primary to-orange-500 h-48"></div>
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Understanding Your Car's Warning Lights
+                Understanding Your Car&apos;s Warning Lights
               </h3>
               <p className="text-gray-600 mb-4">
-                Don't ignore those warning lights! Learn what they mean and when to visit a mechanic.
+                Don&apos;t ignore those warning lights! Learn what they mean and when to visit a mechanic.
               </p>
               <a href="#" className="text-primary font-semibold hover:text-primary/80">
                 Read More →

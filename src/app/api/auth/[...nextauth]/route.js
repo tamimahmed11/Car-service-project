@@ -5,16 +5,18 @@ import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import bcrypt from "bcrypt";
 
-const getEnv = (...keys) => keys.find((key) => process.env[key]) ? process.env[keys.find((key) => process.env[key])] : undefined;
-
 const handler = NextAuth({
-  secret: getEnv("NEXTAUTH_SECRET", "AUTH_SECRET", "NEXT_PUBLIC_AUTH_SECRET"),
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
-    rolling: false,
-  },
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
+    }),
     CredentialsProvider({
       credentials: {
         email: {},
@@ -40,46 +42,70 @@ const handler = NextAuth({
         return currentUser;
       },
     }),
-    GoogleProvider({
-      clientId: getEnv("GOOGLE_CLIENT_ID", "NEXT_PUBLIC_GOOGLE_CLIENT_ID"),
-      clientSecret: getEnv(
-        "GOOGLE_CLIENT_SECRET",
-        "NEXT_PUBLIC_GOOGLE_CLIENT_SECRET"
-      ),
-    }),
-    GitHubProvider({
-      clientId: getEnv("GITHUB_CLIENT_ID", "NEXT_PUBLIC_GITHUB_CLIENT_ID"),
-      clientSecret: getEnv(
-        "GITHUB_CLIENT_SECRET",
-        "NEXT_PUBLIC_GITHUB_CLIENT_SECRET"
-      ),
-    }),
   ],
   pages: {
     signIn: "/login",
+    error: "/login",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id || user._id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.id = token.id;
+      }
+      return session;
+    },
     async signIn({ user, account }) {
-      if (
-        account?.provider === "google" ||
-        account?.provider === "github" ||
-        account?.provider === "facebook"
-      ) {
+      if (account?.provider === "google" || account?.provider === "github") {
         try {
           const db = await connectDB();
           const userCollection = db.collection("users");
           const userExist = await userCollection.findOne({ email: user.email });
+          
           if (!userExist) {
-            await userCollection.insertOne(user);
+            const newUser = {
+              email: user.email,
+              name: user.name || "",
+              image: user.image || "",
+              provider: account.provider,
+              createdAt: new Date(),
+            };
+            const result = await userCollection.insertOne(newUser);
+            user._id = result.insertedId;
+          } else {
+            user._id = userExist._id;
+            if (userExist.image !== user.image || userExist.name !== user.name) {
+              await userCollection.updateOne(
+                { email: user.email },
+                {
+                  $set: {
+                    image: user.image || userExist.image,
+                    name: user.name || userExist.name,
+                  },
+                }
+              );
+            }
           }
           return true;
         } catch (error) {
-          console.log(error);
+          console.error("SignIn error:", error);
           return false;
         }
-      } else {
-        return true;
       }
+      return true;
     },
   },
 });
